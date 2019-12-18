@@ -1,0 +1,21 @@
+# EN-US: If 'EN-US' the plugin will "speak" in English
+# PT-BR: Se 'PT-BR', o plugin vai "falar" em Português
+Language: 'EN-US'
+
+# EN-US: If 'true' the files will be scanned
+# PT-BR: Se 'true', os arquivos serão verificados
+Scan: true
+
+# EN-US: These files will not be scanned
+# PT-BR: Estes arquivos não vão ser verificados
+Whitelist:
+  - 'spigot.jar'
+  - 'BlogAntiForceOp.jar'
+
+# EN-US: If 'true' the malicious jars will be deleted
+# PT-BR: Se 'true', os arquivos maliciosos serão deletados
+DeleteMaliciousJars: false
+
+# EN-US: If 'true', malicious files will be extracted to the folder plugin.
+# PT-BR: Se 'true', os arquivos maliciosos serão extraidos para pasta do plugin
+ExtractMaliciousClasses: true
