@@ -70,7 +70,9 @@ class Main : JavaPlugin() {
                 logger.info(language.updateMessage.format(latestVersion, "https://github.com/VitorBlog/BlogAntiForceOp/releases/download/$latestVersion/BlogAntiForceOp.jar"))
             }
 
-        } catch (e: Exception) {}
+        } catch (e: Exception) {
+                logger.info("Could not check for updates.")
+        }
 
     }
 
