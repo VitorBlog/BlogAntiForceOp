@@ -25,10 +25,10 @@ class JarManager {
             Main.instance.logger.info(Main.instance.language.loadedCodeMessage.format(jar.files.size, jar.file.name))
         }
 
-        searchForOPJars()
+        searchForMaliciousJars()
     }
 
-    fun searchForOPJars(){
+    fun searchForMaliciousJars(){
         for (jar in JarDao.JARS.values){
             for ((file, code) in jar.files){
 
