@@ -4,9 +4,9 @@ import com.vitorblog.antiop.Main
 import com.vitorblog.antiop.dao.JarDao
 import com.vitorblog.antiop.model.Config
 import com.vitorblog.antiop.model.Jar
+import com.vitorblog.antiop.model.Language
 import com.vitorblog.antiop.sink.CFRSink
 import org.benf.cfr.reader.api.CfrDriver
-import org.bukkit.Bukkit
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -14,48 +14,57 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class JarManager {
 
-    private val maliciousLines: AtomicInteger = AtomicInteger(0);
+    private val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
+    private val maliciousLines: AtomicInteger = AtomicInteger(0)
 
-    fun decompileJars(){
-        for (jar in JarDao.JARS.values){
+    fun decompileJars() {
+
+        for (jar in JarDao.JARS.values) {
+
             val driver = CfrDriver.Builder().withOutputSink(CFRSink(jar)).build()
             driver.analyse(listOf("${jar.file.absoluteFile}"))
 
             JarDao.add(jar)
-            Main.instance.logger.info(Main.instance.language.loadedCodeMessage.format(jar.files.size, jar.file.name))
+            Language.LOADED_CODE.log(jar.files.size, jar.file.name)
+
         }
 
         searchForMaliciousJars()
     }
 
-    fun searchForMaliciousJars(){
-        for (jar in JarDao.JARS.values){
-            for ((file, code) in jar.files){
+    private fun searchForMaliciousJars() {
 
-                val lines = code.split("\n")
+        for (jar in JarDao.JARS.values) {
+            for ((file, code) in jar.files) {
 
-                for ((i, line) in lines.withIndex()){
+                for ((index, line) in code.split("\n").withIndex()) {
 
-                    if (line.maliciousLine()){
+                    if (line.maliciousLine()) {
 
-                        // Count one malicious line.
                         maliciousLines.getAndIncrement()
 
-                        val msg = Main.instance.language.forceopMessage.format(jar.file.name, file, i-2)
-                        val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
+                        val message = Language.FORCE_OP_FOUND.format(jar.file.name, file, index - 2)
 
-                        Main.instance.logManager.write("[${simpleDateFormat.format(Date())}] $msg")
-                        Main.instance.logger.info(msg)
+                        Main.instance.logManager.write("[${simpleDateFormat.format(Date())}] $message")
+                        Main.instance.logger.info(message)
 
-                        if (Config.DELETE.obj as Boolean){
+                        if (Config.DELETE.obj as Boolean) {
+
                             jar.file.delete()
-                            Main.instance.logger.info(Main.instance.language.deleteFileMessage.format(jar.file.name))
+                            Language.DELETE_FILE.log(jar.file.name)
+
                         }
 
-                        if (Config.EXTRACT.obj as Boolean){
+                        if (Config.EXTRACT.obj as Boolean) {
+
                             extractFile(jar, file, code)
-                            Main.instance.logger.info(Main.instance.language.extractFileMessage.format(jar.file.name, "plugins/BlogAntiForceOp/${jar.file.nameWithoutExtension}/$file"))
+                            Language.EXTRACT_FILE.log(
+                                jar.file.name,
+                                "plugins/BlogAntiForceOp/${jar.file.nameWithoutExtension}/$file"
+                            )
+
                         }
+
                     }
 
                 }
@@ -64,9 +73,10 @@ class JarManager {
         }
 
         finish()
+
     }
 
-    fun extractFile(jar:Jar, file:String, code:String){
+    private fun extractFile(jar: Jar, file: String, code: String) {
         val folder = File("plugins/BlogAntiForceOp/${jar.file.nameWithoutExtension}")
         folder.mkdir()
 
@@ -75,13 +85,19 @@ class JarManager {
         codeFile.writeText(code)
     }
 
-    fun String.maliciousLine():Boolean {
-        return this.contains("setOp") || this.contains("/op") || this.contains("/deop")
+    private fun String.maliciousLine(): Boolean {
+
+        return this.contains("setOp")
+                || this.contains("/op")
+                || this.contains("/deop")
+
     }
 
-    fun finish(){
-        Main.instance.logger.info(Main.instance.language.finishMessage.format(maliciousLines.get()))
-        Bukkit.getConsoleSender().sendMessage(Main.instance.language.donateMessage2)
-        Bukkit.getConsoleSender().sendMessage(Main.instance.language.donateLinks)
+    private fun finish() {
+
+        Language.FINISH_MESSAGE.log(maliciousLines.get())
+        Language.SECOND_DONATE_MESSAGE.log()
+        Language.DONATE_LINK.log()
+
     }
 }

@@ -1,7 +1,5 @@
 package com.vitorblog.antiop
 
-import com.vitorblog.antiop.language.`EN-US`
-import com.vitorblog.antiop.language.`PT-BR`
 import com.vitorblog.antiop.manager.JarManager
 import com.vitorblog.antiop.manager.LogManager
 import com.vitorblog.antiop.model.Config
@@ -10,17 +8,16 @@ import com.vitorblog.antiop.process.ConfigProcess
 import com.vitorblog.antiop.process.JarProcess
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
-import java.util.logging.Logger
 import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
-import java.util.stream.Collectors
-import java.io.BufferedReader
 import java.net.URL
 
-
 class Main : JavaPlugin() {
-    companion object { lateinit var instance:Main }
-    lateinit var language:Language
+
+    companion object {
+        lateinit var instance: Main
+    }
+
     val jarManager = JarManager()
     val logManager = LogManager()
 
@@ -34,17 +31,14 @@ class Main : JavaPlugin() {
 
         logManager.createFile()
         ConfigProcess().load(config)
-        language = when (Config.LANGUAGE.obj.toString().toUpperCase()){
-            "PT-BR" -> `PT-BR`()
-            else -> `EN-US`()
-        }
-        logger.info(language.selectedLanguageMessage)
-        Bukkit.getConsoleSender().sendMessage(Main.instance.language.donateMessage)
-        Bukkit.getConsoleSender().sendMessage(Main.instance.language.donateLinks)
 
-        if (!(Config.SCAN.obj as Boolean)){
+        Language.SELECTED_LANGUAGE.log()
+        Language.FIRST_DONATE_MESSAGE.log()
+        Language.DONATE_LINK.log()
+
+        if (!(Config.SCAN.obj as Boolean)) {
             checkUpdate()
-            logger.info(language.scanDisabledMessage)
+            Language.SCAN_DISABLED.log()
             Bukkit.getPluginManager().disablePlugin(this)
             return
         }
@@ -67,11 +61,16 @@ class Main : JavaPlugin() {
             val latestVersion = jsonObject["tag_name"] as String
 
             if (version != latestVersion) {
-                logger.info(language.updateMessage.format(latestVersion, "https://github.com/VitorBlog/BlogAntiForceOp/releases/download/$latestVersion/BlogAntiForceOp.jar"))
+                Language.UPDATE_MESSAGE.log(
+                    latestVersion,
+                    "https://github.com/VitorBlog/BlogAntiForceOp/releases/download/$latestVersion/BlogAntiForceOp.jar"
+                )
             }
 
         } catch (e: Exception) {
-                logger.info("Could not check for updates.")
+
+            logger.info("Could not check for updates.")
+
         }
 
     }
