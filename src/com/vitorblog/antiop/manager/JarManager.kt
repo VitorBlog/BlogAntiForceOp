@@ -6,15 +6,15 @@ import com.vitorblog.antiop.model.Config
 import com.vitorblog.antiop.model.Jar
 import com.vitorblog.antiop.sink.CFRSink
 import org.benf.cfr.reader.api.CfrDriver
-import org.benf.cfr.reader.api.OutputSinkFactory
-import org.benf.cfr.reader.api.SinkReturns
 import org.bukkit.Bukkit
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.function.Consumer
+import java.util.concurrent.atomic.AtomicInteger
 
 class JarManager {
+
+    private val maliciousLines: AtomicInteger = AtomicInteger(0);
 
     fun decompileJars(){
         for (jar in JarDao.JARS.values){
@@ -37,6 +37,10 @@ class JarManager {
                 for ((i, line) in lines.withIndex()){
 
                     if (line.maliciousLine()){
+
+                        // Count one malicious line.
+                        maliciousLines.getAndIncrement()
+
                         val msg = Main.instance.language.forceopMessage.format(jar.file.name, file, i-2)
                         val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
 
@@ -76,9 +80,8 @@ class JarManager {
     }
 
     fun finish(){
-        Main.instance.logger.info(Main.instance.language.finishMessage.format(5))
+        Main.instance.logger.info(Main.instance.language.finishMessage.format(maliciousLines.get()))
         Bukkit.getConsoleSender().sendMessage(Main.instance.language.donateMessage2)
         Bukkit.getConsoleSender().sendMessage(Main.instance.language.donateLinks)
     }
-
 }
