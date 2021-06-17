@@ -1,6 +1,7 @@
 package com.vitorblog.antiop.model
 
 import com.vitorblog.antiop.Main
+import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
 enum class Language(val english: String, val portuguese: String) {
 
@@ -26,12 +27,12 @@ enum class Language(val english: String, val portuguese: String) {
     ),
     DONATE_LINK("Donate link: https://donate.vitorpaulo.dev", "Link de doação: https://donate.vitorpaulo.dev");
 
-    fun log(vararg value: Any) {
+    fun log(vararg value: Any?) {
 
-        Main.instance.logger.info(format(value))
+        Main.instance.logger.info(format(*value))
 
     }
 
-    fun format(vararg value: Any) = (if (Config.LANGUAGE.obj == "PT-BR") portuguese else english).format(value)
+    fun format(vararg value: Any?) = (if (Config.LANGUAGE.obj == "PT-BR") portuguese else english).format(*value)
 
 }
